@@ -9,7 +9,7 @@ fn compute_fuel(mass: i64) -> i64 {
 }
 
 fn main() {
-    let input = include_str!("../../inputs/day-01-1.txt");
+    let input = include_str!("inputs/day-01.txt");
     let answer: i64 = parse_ints(input).map(compute_fuel).sum();
     println!("{}", answer);
 }
