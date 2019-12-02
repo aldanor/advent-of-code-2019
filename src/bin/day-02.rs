@@ -33,4 +33,14 @@ fn main() {
 
     let answer1 = run(&data, 12, 2);
     println!("{}", answer1);
+
+    for noun in 0..=99 {
+        for verb in 0..=99 {
+            if run(&data, noun, verb) == 19690720 {
+                let answer2 = noun * 100 + verb;
+                println!("{}", answer2);
+                break;
+            }
+        }
+    }
 }
