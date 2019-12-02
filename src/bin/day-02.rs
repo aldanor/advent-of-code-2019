@@ -34,13 +34,19 @@ fn main() {
     let answer1 = run(&data, 12, 2);
     println!("{}", answer1);
 
-    for noun in 0..=99 {
-        for verb in 0..=99 {
-            if run(&data, noun, verb) == 19690720 {
-                let answer2 = noun * 100 + verb;
-                println!("{}", answer2);
-                break;
-            }
-        }
-    }
+    let answer2 = (0..=99)
+        .filter_map(|noun| {
+            (0..=99)
+                .filter_map(|verb| {
+                    if run(&data, noun, verb) == 19690720 {
+                        Some(noun * 100 + verb)
+                    } else {
+                        None
+                    }
+                })
+                .next()
+        })
+        .next()
+        .unwrap();
+    println!("{}", answer2);
 }
