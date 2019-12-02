@@ -16,15 +16,21 @@ fn step(data: &mut [usize], i: usize) -> Option<usize> {
     }
 }
 
-fn main() {
-    let input = include_str!("inputs/day-02.txt");
-    let mut data: Vec<usize> = parse_ints(input, ',').collect();
-    data[1] = 12;
-    data[2] = 2;
-    let answer = (0..data.len())
+fn run(data: &[usize], noun: usize, verb: usize) -> usize {
+    let mut data = data.to_vec();
+    data[1] = noun;
+    data[2] = verb;
+    (0..data.len())
         .step_by(4)
         .filter_map(|i| step(&mut data, i))
         .next()
-        .unwrap();
-    println!("{}", answer);
+        .unwrap()
+}
+
+fn main() {
+    let input = include_str!("inputs/day-02.txt");
+    let data: Vec<_> = parse_ints(input, ',').collect();
+
+    let answer1 = run(&data, 12, 2);
+    println!("{}", answer1);
 }
