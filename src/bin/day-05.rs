@@ -201,3 +201,23 @@ fn main() {
     let answer2 = Machine::new(5, &data).run().output().unwrap();
     println!("{}", answer2);
 }
+
+#[test]
+fn test_machine() {
+    let data = vec![
+        3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0,
+        1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20,
+        1105, 1, 46, 98, 99,
+    ];
+    for input in 0..20 {
+        let output = Machine::new(input, &data).run().output().unwrap();
+        let expected = if input < 8 {
+            999
+        } else if input == 8 {
+            1000
+        } else {
+            1001
+        };
+        assert_eq!(output, expected);
+    }
+}
