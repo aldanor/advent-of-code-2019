@@ -22,7 +22,18 @@ impl From<i64> for Param {
 enum Outcome {
     Write(i64),
     Output(i64),
+    Jump(usize),
     None,
+}
+
+impl Outcome {
+    pub fn jump_if(condition: bool, value: usize) -> Self {
+        if condition {
+            Self::Jump(value)
+        } else {
+            Self::None
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -31,21 +42,25 @@ enum Op {
     Multiply,
     Input,
     Output,
+    JumpIfTrue,
+    JumpIfFalse,
+    LessThan,
+    Equals,
     Exit,
 }
 
 impl Op {
     pub fn n_in(&self) -> usize {
         match self {
-            Op::Add | Op::Multiply => 2,
+            Op::Input | Op::Exit => 0,
             Op::Output => 1,
-            _ => 0,
+            _ => 2,
         }
     }
 
     pub fn has_out(&self) -> bool {
         match self {
-            Op::Add | Op::Multiply | Op::Input => true,
+            Op::Add | Op::Multiply | Op::Input | Op::LessThan | Op::Equals => true,
             _ => false,
         }
     }
@@ -60,6 +75,10 @@ impl Op {
             Op::Multiply => Outcome::Write(inputs[0] * inputs[1]),
             Op::Input => Outcome::Write(input),
             Op::Output => Outcome::Output(inputs[0]),
+            Op::JumpIfTrue => Outcome::jump_if(inputs[0] != 0, inputs[1] as _),
+            Op::JumpIfFalse => Outcome::jump_if(inputs[0] == 0, inputs[1] as _),
+            Op::LessThan => Outcome::Write((inputs[0] < inputs[1]) as _),
+            Op::Equals => Outcome::Write((inputs[0] == inputs[1]) as _),
             Op::Exit => Outcome::None,
         }
     }
@@ -72,6 +91,10 @@ impl From<i64> for Op {
             2 => Op::Multiply,
             3 => Op::Input,
             4 => Op::Output,
+            5 => Op::JumpIfTrue,
+            6 => Op::JumpIfFalse,
+            7 => Op::LessThan,
+            8 => Op::Equals,
             99 => Op::Exit,
             _ => unreachable!(),
         }
@@ -143,7 +166,10 @@ impl Machine {
             }
             _ => (),
         }
-        self.pos += 1 + op.n_params();
+        self.pos = match outcome {
+            Outcome::Jump(pos) => pos,
+            _ => self.pos + 1 + op.n_params(),
+        }
     }
 
     pub fn step(&mut self) -> bool {
@@ -152,7 +178,7 @@ impl Machine {
         let inputs = command.parse_inputs(&self.data, self.pos);
         let outcome = op.apply(&inputs, self.input);
         self.apply_outcome(op, outcome);
-        outcome != Outcome::None
+        op != Op::Exit
     }
 
     pub fn run(&mut self) -> &mut Self {
@@ -171,4 +197,7 @@ fn main() {
 
     let answer1 = Machine::new(1, &data).run().output().unwrap();
     println!("{}", answer1);
+
+    let answer2 = Machine::new(5, &data).run().output().unwrap();
+    println!("{}", answer2);
 }
